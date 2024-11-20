@@ -1,4 +1,4 @@
-import { Settings } from "lucide-react";
+import { Save, Settings } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -143,11 +143,16 @@ const NavBar = () => {
                 </div>
               </RadioGroup>
 
-              <p className="text-sm font-light">{t("exchange")}</p>
+              <div>
+                <p className="text-sm font-light">{t("exchange")}</p>
+                <p className="text-sm font-light">{t("taxesAR")}</p>
+              </div>
             </div>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={handleSaveSettings}>{t("saveSettings")}</Button>
+            <Button onClick={handleSaveSettings}>
+              <Save /> {t("saveSettings")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -26,5 +26,18 @@
   "removeSubtitle": "Por favor, confirmar que deseas eliminar el producto",
   "removeButton": "Eliminar",
   "exchange": "Tipo de cambio: ARS 1000 = USD 1",
-  "emptyCart": "Agrega algo genial a tu carrito"
+  "taxesAR": "Aplican impuestos en ARS",
+  "emptyCart": "Agrega algo genial a tu carrito",
+  "deleteCart": "Eliminar carrito",
+  "order": "Orden de compra",
+  "coupon": "Código promocional",
+  "taxes": "Impuestos",
+  "discount": "Descuento",
+  "pay": "Pagar",
+  "paymentTitle": "Ups, no hubo tiempo para la pasarela de pagos.",
+  "paymentDescription": "Pero si hubiera una, sin dudas pagaría con una cuenta de Wallbit.",
+  "paymentCode": "Código de descuento: WALLBIT",
+  "closePayment": "Cerrar",
+  "visitPayment": "Visitar sitio",
+  "noProductPayment": "Sin productos, no hay nada que pagar."
 }

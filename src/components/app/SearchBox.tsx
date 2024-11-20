@@ -13,7 +13,7 @@ function SearchBox() {
         className={`${
           settings.theme === "dark"
             ? "bg-xDarkLigthBackground border-xDarkLigthBackground text-white z-50"
-            : "bg-xLightBlue border-xLightBlue text-xDarkBackground z-50"
+            : "bg-xLightBackground border-xLightBackground text-xDarkBackground z-50"
         } my-4`}
       >
         <CardHeader className="text-sm md:text-base">

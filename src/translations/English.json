@@ -26,5 +26,18 @@
   "removeSubtitle": "Please, confirm you want to remove the product.",
   "removeButton": "Remove",
   "exchange": "Exchange: ARS 1000 = USD 1",
-  "emptyCart": "Add something awesome to your cart!"
+  "taxesAR": "Taxes apply in ARS",
+  "emptyCart": "Add something awesome to your cart!",
+  "deleteCart": "Delete cart",
+  "order": "Buy order",
+  "coupon": "Promotion code",
+  "taxes": "Taxes",
+  "discount": "Discount",
+  "pay": "Pay",
+  "paymentTitle": "Oops, there wasn’t time for the payment gateway.",
+  "paymentDescription": "But if there were one, I’d definitely pay with a Wallbit account.",
+  "paymentCode": "Promotion code: WALLBIT",
+  "closePayment": "Close",
+  "visitPayment": "Visit site",
+  "noProductPayment": "Without products, there’s nothing to pay for."
 }

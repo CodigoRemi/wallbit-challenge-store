@@ -15,27 +15,40 @@ import { useCart } from "@/utils/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguageContext } from "@/utils/LanguageContext";
 import { useSettings } from "@/utils/SettingsContext";
+import { LoaderIcon, ShoppingBag } from "lucide-react";
+import { useState } from "react";
 
 const formSchema = z.object({
   quantity: z
-    .number({ required_error: "Este campo es obligatorio" })
-    .min(1, "This field is required"),
+    .number({ message: "Este campo es obligatorio" })
+    .min(1, "Debe ser un valor entre 1 y 20")
+    .max(20, "La cantidad no puede ser superior a 20 unidades")
+    .int({ message: "Debe ser un número entero" }),
   idProduct: z
     .number({ required_error: "Este campo es obligatorio" })
-    .min(1, "This field is required"),
+    .min(1, "Debe ser un número entero")
+    .int({ message: "Debe ser un número entero" }),
 });
 
 function FormSearch() {
-  const { addToCart } = useCart();
+  const { addToCart, cart } = useCart();
   const { toast } = useToast();
   const { t, currentLanguage } = useLanguageContext();
   const { settings } = useSettings();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    setLoading(true);
+    const existingItem = cart.find(
+      (item) => item.product.id === values.idProduct
+    );
+    const currentQuantity = existingItem ? existingItem.quantity : 0;
+    const newTotalQuantity = currentQuantity + values.quantity;
+
     fetch(`https://fakestoreapi.com/products/${values.idProduct}`)
       .then((res) => {
         if (!res.ok) {
@@ -55,16 +68,48 @@ function FormSearch() {
         });
 
         if (currentLanguage === "es") {
-          toast({
-            description: "Producto agregado correctamente.",
-          });
+          if (newTotalQuantity > 20) {
+            toast({
+              variant: "destructive",
+              title: "Máximo alcanzado",
+              description:
+                "No se pueden agregar más de 20 unidades de este producto.",
+            });
+
+            setLoading(false);
+
+            return;
+          } else {
+            toast({
+              description: "Producto agregado correctamente.",
+            });
+          }
         } else {
-          toast({
-            description: "Added to cart successfully",
-          });
+          if (newTotalQuantity > 20) {
+            toast({
+              variant: "destructive",
+              title: "Maximum reached",
+              description: "You cannot add more than 20 units of this product.",
+            });
+
+            setLoading(false);
+
+            return;
+          } else {
+            toast({
+              description: "Added to cart successfully",
+            });
+          }
         }
+
+        setLoading(false);
       })
       .catch(() => {
+        form.reset({
+          quantity: undefined,
+          idProduct: undefined,
+        });
+
         if (currentLanguage === "es") {
           toast({
             variant: "destructive",
@@ -78,6 +123,8 @@ function FormSearch() {
             description: "Product doesn't exist. Try another ID.",
           });
         }
+
+        setLoading(false);
       });
   }
 
@@ -85,7 +132,7 @@ function FormSearch() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-3 md:space-y-0 md:grid md:grid-cols-4 md:gap-6 md:items-end"
+        className="space-y-3 md:space-y-0 md:grid md:grid-cols-4 md:gap-6"
       >
         <FormField
           control={form.control}
@@ -97,11 +144,10 @@ function FormSearch() {
                 <Input
                   id="quantity"
                   type="number"
-                  placeholder="4"
+                  placeholder="1"
                   className={`mt-1 ${
                     settings.theme === "dark" ? "border-white" : "border-black"
                   }`}
-                  min={1}
                   {...field}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   value={field.value ?? ""}
@@ -126,7 +172,6 @@ function FormSearch() {
                   className={`mt-1 ${
                     settings.theme === "dark" ? "border-white" : "border-black"
                   }`}
-                  min={1}
                   {...field}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   value={field.value ?? ""}
@@ -137,9 +182,18 @@ function FormSearch() {
           )}
         />
 
-        <Button className="w-full md:col-start-4 bg-xPrimary" type="submit">
-          {t("add")}
-        </Button>
+        {!loading ? (
+          <Button
+            className="w-full md:col-start-4 md:self-end bg-xPrimary"
+            type="submit"
+          >
+            <ShoppingBag /> {t("add")}
+          </Button>
+        ) : (
+          <Button className="w-full md:col-start-4 md:self-end bg-xPrimary disabled">
+            <LoaderIcon />
+          </Button>
+        )}
       </form>
     </Form>
   );

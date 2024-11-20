@@ -3,6 +3,8 @@ import {
   Plus,
   ShoppingCart,
   SlidersHorizontal,
+  SquareMinus,
+  SquareX,
   Trash,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
@@ -10,7 +12,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -33,6 +34,7 @@ import {
 import TableRowSkeleton from "./TableRowSkeleton";
 import { useLanguageContext } from "@/utils/LanguageContext";
 import { useSettings } from "@/utils/SettingsContext";
+import { toast } from "@/hooks/use-toast";
 
 interface CartProps {
   items: CartItem[];
@@ -44,8 +46,13 @@ const Cart: React.FC<CartProps> = ({ items, className }) => {
     {}
   );
 
-  const { removeFromCart, addQuantity, removeQuantity, cartCreatedDate } =
-    useCart();
+  const {
+    removeFromCart,
+    addQuantity,
+    removeQuantity,
+    cartCreatedDate,
+    clearCart,
+  } = useCart();
   const { t } = useLanguageContext();
   const { settings } = useSettings();
 
@@ -69,29 +76,52 @@ const Cart: React.FC<CartProps> = ({ items, className }) => {
         className={`${
           settings.theme === "dark"
             ? "bg-xDarkLigthBackground border-xDarkLigthBackground text-white"
-            : "bg-xLightBlue border-xLightBlue text-xDarkBackground"
+            : "bg-xLightBackground border-xLightBackground text-xDarkBackground"
         } my-4 flex-1 flex flex-col min-h-0`}
       >
         <CardHeader className="flex flex-shrink-0">
-          <p>
-            {t("shoppingCart")}{" "}
-            {cartCreatedDate !== "" ? (
-              <span>
-                - {t("creationDate")}:{" "}
-                {new Date(cartCreatedDate)
-                  .toLocaleString("en-GB", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                  })
-                  .replace(",", "")}
-              </span>
+          <div className="flex justify-between">
+            <p>
+              {t("shoppingCart")}{" "}
+              {cartCreatedDate !== "" ? (
+                <span>
+                  - {t("creationDate")}:{" "}
+                  {new Date(cartCreatedDate)
+                    .toLocaleString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                    .replace(",", "")}
+                </span>
+              ) : (
+                <></>
+              )}
+            </p>
+            {items.length !== 0 ? (
+              <Button
+                onClick={() => {
+                  clearCart();
+                  if (settings.language === "es") {
+                    toast({
+                      description: "¡Has vaciado correctamente tu carrito!",
+                    });
+                  } else {
+                    toast({
+                      description: "You have successfully emptied your cart!",
+                    });
+                  }
+                }}
+                className="bg-red-800"
+              >
+                <SquareX /> {t("deleteCart")}
+              </Button>
             ) : (
               <></>
             )}
-          </p>
+          </div>
         </CardHeader>
         <CardContent ref={tableBodyRef} className="flex-1 overflow-y-auto">
           {items.length !== 0 ? (
@@ -120,13 +150,13 @@ const Cart: React.FC<CartProps> = ({ items, className }) => {
               </TableHeader>
               <TableBody>
                 {items.length > 0 &&
-                  items.map((i) => (
+                  items.map((i, index) => (
                     <>
                       {!loadedImages[i.product.id] && (
                         <TableRowSkeleton key={`skeleton-${i.product.id}`} />
                       )}
                       <TableRow
-                        id={i.product.id.toString()}
+                        key={index}
                         className={`h-10 ${
                           !loadedImages[i.product.id] ? "hidden" : ""
                         }`}
@@ -146,6 +176,7 @@ const Cart: React.FC<CartProps> = ({ items, className }) => {
                               variant={"ghost"}
                               onClick={() => addQuantity(i.product.id)}
                               size={"sm"}
+                              disabled={i.quantity == 20 ? true : false}
                             >
                               <Plus className="text-xPrimary" />
                             </Button>
@@ -155,8 +186,8 @@ const Cart: React.FC<CartProps> = ({ items, className }) => {
                         <TableCell>
                           <img
                             src={i.product.image}
-                            width={60}
                             className="mx-auto"
+                            width={60}
                             onLoad={() =>
                               setLoadedImages((prev) => ({
                                 ...prev,
@@ -199,6 +230,7 @@ const Cart: React.FC<CartProps> = ({ items, className }) => {
                                       dialogCloseRef.current?.click();
                                     }}
                                   >
+                                    <SquareMinus />
                                     {t("removeButton")}
                                   </Button>
                                   <DialogClose
@@ -214,33 +246,6 @@ const Cart: React.FC<CartProps> = ({ items, className }) => {
                     </>
                   ))}
               </TableBody>
-              {items.length > 0 && (
-                <TableFooter
-                  className={`${
-                    settings.theme === "dark"
-                      ? "bg-xDarkLigthBackground border-xDarkLigthBackground text-white"
-                      : "bg-xLightBlue border-xLightBlue text-xDarkBackground"
-                  } h-24`}
-                >
-                  <TableRow>
-                    <TableCell colSpan={4}>
-                      Total (
-                      {items.reduce((acc, item) => acc + item.quantity, 0)}{" "}
-                      items)
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {settings.currency}{" "}
-                      {(
-                        items.reduce(
-                          (acc, item) =>
-                            acc + item.product.price * item.quantity,
-                          0
-                        ) * (settings.currency === "ARS" ? 1000 : 1)
-                      ).toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
-              )}
             </Table>
           ) : (
             <div className="flex flex-col justify-center items-center space-y-4 h-full">
